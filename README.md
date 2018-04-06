@@ -7,18 +7,14 @@ Sometimes when you download the chest x-rays from the internet, there's no  text
 ### Prerequistites
 - Linux or OSX
 - NVIDIA GPU
-- Python 2.7
-- PyTorch v0.2.0
+- Python 3.6.1
+- PyTorch v0.3.1
 - Numpy
 
 ### Getting Started
 ### Installation
 - Install [PyTorh](https://github.com/pytorch/pytorch) and the other dependencies
-- Clone this repo:
-```bash
-git clone https://github.com/xinario/chestViewSplit.git
-cd chestViewSplit
-```
+
 - Download the trained model from [this link](https://drive.google.com/file/d/1vXhPWE-J4_eFY-UQ7A8pf3XdWhHO_lz_/view?usp=sharing) and put it into folder ./models (mkdir ./models)
 
 ### Classification
