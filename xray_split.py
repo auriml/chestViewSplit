@@ -65,9 +65,12 @@ data_transforms = {
 
 dataset_dir = args.input
 
-
+from functools import partial
+import pickle
+pickle.load = partial(pickle.load, encoding="latin1")
+pickle.Unpickler = partial(pickle.Unpickler, encoding="latin1")
 print("| Loading chestViewNet for chest x-ray view classification...")
-checkpoint = torch.load('./models/'+'resnet-50.t7')
+checkpoint = torch.load('./models/'+'resnet-50.t7',map_location=lambda storage, loc: storage, pickle_module=pickle)
 model = checkpoint['model']
 
 use_gpu = torch.cuda.is_available()
@@ -77,7 +80,7 @@ if use_gpu:
 
 model.eval()
 
-testsets = util.MyFolder(dataset_dir, data_transforms['test'])
+testsets = util.MyFolder(dataset_dir, data_transforms['test'], loader = util.sanJuan_loader)
 
 testloader = torch.utils.data.DataLoader(
 	testsets,

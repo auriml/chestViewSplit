@@ -3,6 +3,8 @@ import torch.utils.data as data
 from PIL import Image
 import os
 import os.path
+import numpy as np
+from skimage import transform, io, img_as_float, exposure
 
 IMG_EXTENSIONS = ['.jpg', '.jpeg', '.png', '.ppm', '.bmp', '.pgm']
 
@@ -34,9 +36,20 @@ def make_dataset(dir):
 def pil_loader(path):
     # open path as file to avoid ResourceWarning (https://github.com/python-pillow/Pillow/issues/835)
     with open(path, 'rb') as f:
-        img = Image.open(f)
-        return img.convert('RGB')
 
+        img = Image.open(f)
+        rgb = img.convert('RGB')
+        return rgb
+
+def sanJuan_loader(path):
+    with open(path, 'rb') as f:
+        img = img_as_float(io.imread(path))
+        img = transform.resize(img, (578,560))
+        img = exposure.equalize_hist(img)
+        img = np.uint8(img * 255)
+        rgb = np.dstack((img,img,img))
+        rgb = Image.fromarray(rgb)
+        return rgb
 
 def accimage_loader(path):
     import accimage
