@@ -41,7 +41,7 @@ def pil_loader(path):
         rgb = img.convert('RGB')
         return rgb
 
-def sanJuan_loader(path):
+def SJ_loader(path):
     with open(path, 'rb') as f:
         img = img_as_float(io.imread(path))
         img = transform.resize(img, (578,560))

@@ -18,9 +18,10 @@ Sometimes when you download the chest x-rays from the internet, there's no  text
 - Download the trained model from [this link](https://drive.google.com/file/d/1vXhPWE-J4_eFY-UQ7A8pf3XdWhHO_lz_/view?usp=sharing) and put it into folder ./models (mkdir ./models)
 
 ### Classification
+- Chest_xray_new contains images with different format (uint16 2140 x 1760) than chest_xray_orig and need a custom loader (SJ_loader)
 - Make sure all your chest x-rays resides in the same folder, e.g. ./chest_xray and then run the following command (-i specifies the input folder and -o specifies the output folder).
 ```bash
-python xray_split.py -i chest_xray/ -o chest_xray/
+python xray_split.py -i chest_xray_new/ -o chest_xray/
 ```
 - After running the above script, the images from two views will be saved in folder ./chest_xray/front and ./chest_xray/side respectively.
 

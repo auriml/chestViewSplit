@@ -80,7 +80,7 @@ if use_gpu:
 
 model.eval()
 
-testsets = util.MyFolder(dataset_dir, data_transforms['test'], loader = util.sanJuan_loader)
+testsets = util.MyFolder(dataset_dir, data_transforms['test'], loader = util.SJ_loader)
 
 testloader = torch.utils.data.DataLoader(
 	testsets,
