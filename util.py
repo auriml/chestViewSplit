@@ -5,6 +5,7 @@ import os
 import os.path
 import numpy as np
 from skimage import transform, io, img_as_float, exposure
+from torch.autograd import Variable
 
 IMG_EXTENSIONS = ['.jpg', '.jpeg', '.png', '.ppm', '.bmp', '.pgm']
 
