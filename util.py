@@ -91,12 +91,16 @@ class MyFolder(data.Dataset):
             tuple: (image, target) where target is class_index of the target class.
         """
         path = self.imgs[index]
-        img = self.loader(path)
-        if self.transform is not None:
-            img = self.transform(img)
-        if self.target_transform is not None:
-            img = self.target_transform(img)
-
+        img = None
+        try:
+            img = self.loader(path)
+            if self.transform is not None:
+                img = self.transform(img)
+            if self.target_transform is not None:
+                img = self.target_transform(img)
+        except:
+            print("failed %s..." %path)
+            
         return img, path
 
     def __len__(self):
