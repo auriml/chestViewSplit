@@ -91,7 +91,6 @@ if csvFile is False:
 else:
 	df = pd.read_csv(inputFile)
 	imgs = df[df.Review == 'UNK']
-	imgs = imgs[:2]
 	imgs['ImagePath'] = imgs['ImagePath'].apply(lambda x: root + '/SJ' + str(x) )
 	imgs = imgs['ImagePath'].values
 
@@ -127,10 +126,9 @@ testloader = torch.utils.data.DataLoader(
 
 
 
-print("\n| classifying %s..." %dataset_dir)
+print("\n| classifying ..." )
 side = []
 front = []
-s = testsets[0]
 for batch_idx, (inputs, path) in enumerate(testloader):
 	if use_gpu:
 		inputs = inputs.cuda()
