@@ -15,7 +15,7 @@ from torch.autograd import Variable
 import util
 import pandas as pd
 import remotedebugger as rd
-
+import re
 
 parser = argparse.ArgumentParser(description='PyTorch script for chest xray view classification')
 rd.attachDebugger(parser)
