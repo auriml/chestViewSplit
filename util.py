@@ -8,6 +8,11 @@ import numpy as np
 from skimage import transform, io, img_as_float, exposure
 from torch.autograd import Variable
 
+currentroot = os.getcwd()
+os.chdir("../")
+root = os.getcwd()
+os.chdir(currentroot)
+
 IMG_EXTENSIONS = ['.jpg', '.jpeg', '.png', '.ppm', '.bmp', '.pgm']
 
 
@@ -93,15 +98,20 @@ class MyFolder(data.Dataset):
             tuple: (image, target) where target is class_index of the target class.
         """
         path = self.imgs[index]
-        img = Variable(torch.FloatTensor())
+        
+        img = None
         try:
             img = self.loader(path)
-            if self.transform is not None:
-                img = self.transform(img)
-            if self.target_transform is not None:
-                img = self.target_transform(img)
         except:
             print("failed %s..." %path)
+            path = root + '/SJ' + '/image_dir_processed/20536686640136348236148679891455886468_k6ga29.png'
+            img = self.loader(path)
+        
+        if self.transform is not None:
+            img = self.transform(img)
+        if self.target_transform is not None:
+            img = self.target_transform(img)
+        
 
         return img, path
 

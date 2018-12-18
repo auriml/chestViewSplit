@@ -123,15 +123,11 @@ testloader = torch.utils.data.DataLoader(
 
 
 
-
-
-
 print("\n| classifying ..." )
 side = []
 front = []
+
 for batch_idx, (inputs, path) in enumerate(testloader):
-	if len(inputs) ==0:
-		continue
 	if use_gpu:
 		inputs = inputs.cuda()
 	inputs = Variable(inputs, volatile=True)
