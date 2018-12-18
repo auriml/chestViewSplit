@@ -69,9 +69,10 @@ def default_loader(path):
 
 
 class MyFolder(data.Dataset):
-    def __init__(self, root, transform=None, target_transform=None,
+    def __init__(self, root=None, imgs=None,  transform=None, target_transform=None,
                  loader=default_loader):
-        imgs = make_dataset(root)
+
+        imgs = imgs if imgs is not None else make_dataset(root)
         if len(imgs) == 0:
             raise(RuntimeError("Found 0 images in subfolders of: " + root + "\n"
                                "Supported image extensions are: " + ",".join(IMG_EXTENSIONS)))
@@ -94,7 +95,7 @@ class MyFolder(data.Dataset):
         if self.transform is not None:
             img = self.transform(img)
         if self.target_transform is not None:
-            target = self.target_transform(target)
+            img = self.target_transform(img)
 
         return img, path
 

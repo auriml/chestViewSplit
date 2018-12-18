@@ -13,13 +13,22 @@ from torchvision import datasets, models, transforms
 from networks import *
 from torch.autograd import Variable
 import util
+import pandas as pd
+import remotedebugger as rd
 
 
 parser = argparse.ArgumentParser(description='PyTorch script for chest xray view classification')
-parser.add_argument('-o', '--output', help='output folder where classified images are stored', required=True)
-parser.add_argument('-i', '--input', help='input folder where chest x-rays are stored', required=True)
+rd.attachDebugger(parser)
+parser.add_argument('-o', '--output', help='output folder where classified images are stored', required=False)
+parser.add_argument('-if', '--inputFile', help='input file with chest x-rays paths', required=False)
+parser.add_argument('-i', '--input', help='input folder where chest x-rays are stored', required=False)
 
 args = parser.parse_args()
+
+currentroot = os.getcwd()
+os.chdir("../")
+root = os.getcwd()
+os.chdir(currentroot)
 
 def mkdir_p(path):
 #function  by @tzot from stackoverflow
@@ -35,15 +44,28 @@ def softmax(x):
 	return np.exp(x) / np.sum(np.exp(x), axis=0)
 
 
+if args.output is not None:
+	outputPath = args.output
+else:
+	outputPath = root + '/chestViewSplit/chest_xray/'
 
+csvFile = True
+inputFile = None
+if args.inputFile is not None:
+	inputFile  = root + '/Rx-thorax-automatic-captioning/' + args.inputFile
+else:
+	#inputFile = 'position_toreview_images.csv'
+	inputFile = 'all_info_studies_labels_160K.csv'
+	inputFile  = root + '/Rx-thorax-automatic-captioning/' + inputFile
 
+if args.input is not None:
+	csvFile = False
+	root_front = os.path.join(args.output, 'front')
+	root_side = os.path.join(args.output, 'side')
 
+	mkdir_p(root_front)
+	mkdir_p(root_side)
 
-root_front = os.path.join(args.output, 'front')
-root_side = os.path.join(args.output, 'side')
-
-mkdir_p(root_front)
-mkdir_p(root_side)
 
 mean = [0.485, 0.456, 0.406]
 std = [0.229, 0.224, 0.225]
@@ -61,9 +83,17 @@ data_transforms = {
 	]),
 }
 
-
-
-dataset_dir = args.input
+dataset_dir = None
+imgs =  None
+df = None
+if csvFile is False:
+	dataset_dir = args.input
+else:
+	df = pd.read_csv(inputFile)
+	imgs = df[df.Review == 'UNK']
+	imgs = imgs[:2]
+	imgs['ImagePath'] = imgs['ImagePath'].apply(lambda x: root + '/SJ' + str(x) )
+	imgs = imgs['ImagePath'].values
 
 from functools import partial
 import pickle
@@ -76,11 +106,13 @@ model = checkpoint['model']
 use_gpu = torch.cuda.is_available()
 if use_gpu:
 	model.cuda()
+	print("Using cuda")
 
 
 model.eval()
+print("Past eval")
 
-testsets = util.MyFolder(dataset_dir, data_transforms['test'], loader = util.SJ_loader)
+testsets = util.MyFolder(dataset_dir, imgs, data_transforms['test'], loader = util.SJ_loader)
 
 testloader = torch.utils.data.DataLoader(
 	testsets,
@@ -96,6 +128,9 @@ testloader = torch.utils.data.DataLoader(
 
 
 print("\n| classifying %s..." %dataset_dir)
+side = []
+front = []
+s = testsets[0]
 for batch_idx, (inputs, path) in enumerate(testloader):
 	if use_gpu:
 		inputs = inputs.cuda()
@@ -105,9 +140,27 @@ for batch_idx, (inputs, path) in enumerate(testloader):
 	softmax_res = softmax(outputs.data.cpu().numpy()[0])
 
 	_, predicted = torch.max(outputs.data, 1)
-	print('%s is %s view' % (path[0], views[predicted.cpu().numpy()[0]]))
+	p = re.sub(r'.*/SJ', '', path[0])
+	print('%s is %s view' % (p, views[predicted.cpu().numpy()[0]]))
 
 	if predicted.cpu().numpy()[0] == 0:
-		shutil.copy2(path[0], root_front)
+		if csvFile is False:
+			shutil.copy2(path[0], root_front)
+		else:
+			front.append(p)
+
 	else:
-		shutil.copy2(path[0], root_side)
+		if csvFile is False:
+			shutil.copy2( path[0], root_side)
+		else:
+			side.append( p)
+
+
+
+pd.DataFrame(side).to_csv('position_side_predicted.csv')
+pd.DataFrame(front).to_csv('position_front_predicted.csv')
+
+if csvFile is True: 
+	df.loc[df['ImagePath'].isin(side), 'Review'] = 'L'
+	df.loc[df['ImagePath'].isin(front), 'Review'] = 'PA'
+	df.to_csv('all_info_studies_labels_projections_160K.csv')
